@@ -11,6 +11,7 @@ This project demonstrates how to install and configure a full monitoring stack o
 
 ## ➤ Architecture Overview
 
+```
 EC2 (Ubuntu)
 │
 ├── Node Exporter (Port 9100)
@@ -19,6 +20,7 @@ EC2 (Ubuntu)
 └── Prometheus (Port 9090)
         │
         └── Grafana (Port 3000)
+```
 
 ---
 
