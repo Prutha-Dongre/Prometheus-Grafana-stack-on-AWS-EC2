@@ -35,6 +35,7 @@ EC2 (Ubuntu)
 - Create or select a key pair
 ![ec2](./pictures/1.png)
 
+EC2 acts as the infrastructure layer where all services (Prometheus, Node Exporter, Flask App, Grafana) will run.
 
 ---
 
@@ -68,6 +69,11 @@ sudo apt update -y
 ```
 # ➤ Step 4: Install Prometheus
 
+Why Prometheus?
+
+Prometheus is the core monitoring tool.
+It collects (scrapes) metrics from Node Exporter and the Python application.
+
 ## 1️⃣ Create User and Directories
 
 ```bash
@@ -76,6 +82,9 @@ sudo mkdir /etc/prometheus
 sudo mkdir /var/lib/prometheus
 sudo chown prometheus:prometheus /var/lib/prometheus
 ```
+Create a dedicated user for security (best practice).
+
+Create directories to store configuration and time-series data.
 
 ---
 
@@ -99,10 +108,13 @@ sudo mv consoles /etc/prometheus
 sudo mv console_libraries /etc/prometheus
 sudo mv prometheus.yml /etc/prometheus
 ```
+We move binaries and configuration files to proper system locations following Linux best practices.
 
 ---
 
 ## 4️⃣ Set Ownership
+
+Ensure Prometheus has proper permissions to read config files and write data securely.
 
 ```bash
 sudo chown -R prometheus:prometheus /etc/prometheus
@@ -112,6 +124,13 @@ sudo chown prometheus:prometheus /usr/local/bin/prometheus
 ---
 
 ## 5️⃣ Create Prometheus Systemd Service
+
+Why?
+
+Systemd allows:
+- Running Prometheus as a background service
+- Auto-start on system reboot
+- Easier monitoring and management
 
 ```bash
 sudo vim /etc/systemd/system/prometheus.service
@@ -161,6 +180,16 @@ http://YOUR_PUBLIC_IP:9090
 ---
 
 # ➤ Step 5: Install Node Exporter
+
+Why Node Exporter?
+
+Node Exporter collects system-level metrics like:
+- CPU usage
+- Memory usage
+- Disk I/O
+- Network stats
+
+Prometheus cannot collect system metrics directly, it needs Node Exporter.
 
 ## Download and Install
 
@@ -221,7 +250,14 @@ http://YOUR_PUBLIC_IP:9100/metrics
 
 # ➤ Step 6: Configure Prometheus to Scrape Node Exporter
 
-Edit configuration:
+Prometheus does not automatically discover services.
+We must tell Prometheus:
+
+“Go to localhost:9100 and collect metrics.”
+
+That’s what scrape_configs does.
+
+So Edit the configuration:
 
 ```bash
 sudo vim /etc/prometheus/prometheus.yml
@@ -250,6 +286,8 @@ sudo systemctl restart prometheus
 ---
 
 # ➤ Step 7: Deploy Python Application with Custom Metrics
+
+We want to monitor not just system metrics, but also application-level metrics.
 
 ## Install Python Dependencies
 
@@ -312,7 +350,13 @@ Refresh multiple times to increase the counter.
 
 # ➤ Step 8: Add Python App to Prometheus
 
-Edit configuration:
+Now we configure Prometheus to scrape:
+- Node Exporter → System Metrics
+
+- Python App → Application Metrics
+This creates full-stack monitoring.
+
+So Edit the configuration:
 
 ```bash
 sudo vim /etc/prometheus/prometheus.yml
@@ -364,12 +408,26 @@ Run the following query in Prometheus UI:
 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
 ```
 
+This PromQL query calculates actual CPU usage percentage.
+It proves Node Exporter is properly integrated.
+
 This displays CPU usage percentage.
 ![cpu metric](./pictures/10.png)
 
 ---
 
 # ➤ Install Grafana
+
+Why Grafana?
+
+Prometheus stores raw metrics, but it’s not ideal for visualization.
+
+Grafana:
+- Connects to Prometheus
+- Builds dashboards
+- Creates visual panels
+- Makes monitoring production-ready
+
 
 ```bash
 sudo apt-get install -y apt-transport-https software-properties-common wget
@@ -399,7 +457,17 @@ Default Login:
 
 # ➤ Add Prometheus Data Source in Grafana
 
+Grafana needs a data source to fetch metrics.
+
+We connect Grafana → Prometheus → EC2 metrics.
+
+Once connected:
+- We can build dashboards
+- Create alerts
+- Monitor visually
+
 1. Go to **Connections → Data Sources**
+![data source](./pictures/12-2.png)
 2. Select **Prometheus**
 3. Set URL to:
 
@@ -407,7 +475,12 @@ Default Login:
 http://localhost:9090
 ```
 
+![Data Source in Grafana](./pictures/12-1.png)
+
 4. Click **Save & Test**
+
+![Grafana](./pictures/12-3.png)
+
 
 ---
 
