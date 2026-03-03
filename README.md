@@ -21,6 +21,10 @@ EC2 (Ubuntu)
         │
         └── Grafana (Port 3000)
 ```
+---
+## ➤ Architecture Diagram
+![Architecture](./pictures/archiecture.png)
+
 
 ---
 
@@ -29,6 +33,8 @@ EC2 (Ubuntu)
 - Instance Type: `t3.micro`
 - Operating System: Ubuntu 22.04 LTS
 - Create or select a key pair
+![ec2](./pictures/1.png)
+
 
 ---
 
@@ -45,6 +51,9 @@ Allow the following ports:
 | 3000 | Grafana |
 
 Source: `0.0.0.0/0`
+
+![sg](./pictures/2.png)
+
 
 ---
 
@@ -140,12 +149,14 @@ sudo systemctl start prometheus
 sudo systemctl enable prometheus
 sudo systemctl status prometheus
 ```
+![Prometheus](./pictures/4-1.png)
 
 Access Prometheus:
 
 ```
 http://YOUR_PUBLIC_IP:9090
 ```
+![Prometheus](./pictures/4-2.png)
 
 ---
 
@@ -196,12 +207,15 @@ sudo systemctl start node_exporter
 sudo systemctl enable node_exporter
 sudo systemctl status node_exporter
 ```
+![Node Exporter](./pictures/5-1.png)
 
 Verify:
 
 ```
 http://YOUR_PUBLIC_IP:9100/metrics
 ```
+
+![Node Exporter](./pictures/5-2.png)
 
 ---
 
@@ -221,11 +235,17 @@ Under `scrape_configs`, add:
     - targets: ['localhost:9100']
 ```
 
+![config Node Exporter](./pictures/6-1.png)
+
+
 Restart Prometheus:
 
 ```bash
 sudo systemctl restart prometheus
 ```
+
+![restart Node Exporter](./pictures/6-2.png)
+
 
 ---
 
@@ -284,6 +304,7 @@ Test:
 ```
 http://YOUR_PUBLIC_IP:5000
 ```
+![python app](./pictures/7.png)
 
 Refresh multiple times to increase the counter.
 
@@ -304,6 +325,8 @@ Add:
   static_configs:
     - targets: ['localhost:5000']
 ```
+
+![config python app](./pictures/8-1.png)
 
 Restart Prometheus:
 
@@ -329,6 +352,8 @@ hello_world_total
 
 You should see the counter value increasing.
 
+![Verify Metrics in Prometheus](./pictures/9-1.png)
+
 ---
 
 # ➤ Step 10: Show CPU Usage Metric
@@ -340,6 +365,7 @@ Run the following query in Prometheus UI:
 ```
 
 This displays CPU usage percentage.
+![cpu metric](./pictures/10.png)
 
 ---
 
@@ -366,6 +392,8 @@ Default Login:
 
 - Username: `admin`
 - Password: `admin`
+
+![grafana](./pictures/11.png)
 
 ---
 
